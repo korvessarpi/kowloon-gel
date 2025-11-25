@@ -53,7 +53,7 @@ TELNET_PORTS = [4000]
 # This is a security setting protecting against host poisoning
 # attacks.  It defaults to allowing all. In production, make
 # sure to change this to your actual host addresses/IPs.
-ALLOWED_HOSTS = ["kowloon.life", "3.137.218.62"]
+ALLOWED_HOSTS = ["kowloon.life", "www.kowloon.life", "127.0.0.1", "localhost"]
 # This is a security setting protecting against DJANGO CSRF nonsense
 CSRF_TRUSTED_ORIGINS = ['https://kowloon.life', 'https://3.137.218.62']
 # Start the evennia webclient. This requires the webserver to be running and
@@ -63,7 +63,7 @@ WEBCLIENT_ENABLED = True
 
 # Use secure websocket on port 8443 (CloudFlare-proxied port)
 # CloudFlare handles SSL termination and proxies to backend port 4002
-WEBSOCKET_CLIENT_URL = "wss://kowloon.life:4002"
+# WEBSOCKET_CLIENT_URL = "wss://kowloon.life:8443"
 
 # Default exit typeclass
 DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"
