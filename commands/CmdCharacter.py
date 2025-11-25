@@ -1,3 +1,56 @@
+# ===================================================================
+# IMPORTS
+# ===================================================================
+from evennia import Command
+from evennia.comms.models import ChannelDB
+# ===================================================================
+# THINK COMMAND
+# ===================================================================
+
+class CmdThink(Command):
+    """
+    Externalize your character's thoughts.
+
+    Usage:
+        think <thought>
+
+    Example:
+        think Damn that dude has a cute butt!
+
+    You see:
+        You think . o O ( Damn that dude has a cute butt! )
+    GMs and Builder+ see this in the 'thoughts' channel:
+        <Thinker>: Damn that dude has a cute butt!
+    """
+    key = "think"
+    locks = "cmd:all()"
+    help_category = "Roleplay"
+
+    def func(self):
+        caller = self.caller
+        thought = self.args.strip()
+        if not thought:
+            caller.msg("What do you want to think?")
+            return
+        # Show to self
+        caller.msg(f"You think . o O ( {thought} )")
+        # Send to builder+ 'thoughts' channel
+        channel = ChannelDB.objects.get_channel("thoughts")
+        if channel:
+            thinker = caller.get_display_name(caller) if hasattr(caller, 'get_display_name') else caller.key
+            channel.msg(f"{thinker}: {thought}")
+
+        # Mind's Eye chrome: send thought to others in room with Mind's Eye installed
+        location = getattr(caller, 'location', None)
+        if location:
+            for obj in location.contents:
+                if obj == caller:
+                    continue
+                # Check for Mind's Eye chrome installed
+                chrome = [item for item in getattr(obj, 'contents', []) if hasattr(item, 'db') and getattr(item.db, 'chrome_shortname', None) == 'mindseye']
+                if chrome:
+                    thinker = caller.get_display_name(caller) if hasattr(caller, 'get_display_name') else caller.key
+                    obj.msg(f"{thinker} . o O ( {thought} )")
 from evennia import Command
 from evennia.utils.search import search_object
 from evennia.utils.utils import inherits_from

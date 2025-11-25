@@ -25,7 +25,7 @@ class CmdMedical(Command):
     """
     
     key = "medical"
-    aliases = ["diagnose", "medstat", "health"]
+    aliases = ["diagnose", "diag", "medstat", "health"]
     help_category = "Medical"
     
     def func(self):
