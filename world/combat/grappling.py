@@ -303,8 +303,8 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
     # No proximity check needed here since grapple commands handle their own proximity logic
     
     # Roll for grapple
-    attacker_roll = randint(1, max(1, get_numeric_stat(char, "motorics", 1)))
-    defender_roll = randint(1, max(1, get_numeric_stat(target, "motorics", 1)))
+    attacker_roll = randint(1, max(1, get_numeric_stat(char, "body", 1)))
+    defender_roll = randint(1, max(1, get_numeric_stat(target, "body", 1)))
     
     if attacker_roll > defender_roll:
         # Success
@@ -426,9 +426,9 @@ def resolve_grapple_join(char_entry, combatants_list, handler):
         char.msg(f"You need to be in melee proximity with {target.key} to contest the grapple.")
         return
     
-    # Contest: new grappler vs current grappler (both using motorics)
-    new_grappler_roll = randint(1, max(1, get_numeric_stat(char, "motorics", 1)))
-    current_grappler_roll = randint(1, max(1, get_numeric_stat(current_grappler, "motorics", 1)))
+    # Contest: new grappler vs current grappler (both using BODY)
+    new_grappler_roll = randint(1, max(1, get_numeric_stat(char, "body", 1)))
+    current_grappler_roll = randint(1, max(1, get_numeric_stat(current_grappler, "body", 1)))
     
     splattercast.msg(f"GRAPPLE_CONTEST: {char.key} ({new_grappler_roll}) vs {current_grappler.key} ({current_grappler_roll}) for {target.key}")
     
@@ -535,9 +535,9 @@ def resolve_grapple_takeover(char_entry, combatants_list, handler):
         # For takeover, we allow rush-in behavior like regular grapple initiation
         splattercast.msg(f"GRAPPLE_TAKEOVER_RUSH: {char.key} rushing in to grapple {target.key}")
     
-    # Contest: new grappler vs current grappler (both using motorics)
-    new_grappler_roll = randint(1, max(1, get_numeric_stat(char, "motorics", 1)))
-    current_grappler_roll = randint(1, max(1, get_numeric_stat(target, "motorics", 1)))
+    # Contest: new grappler vs current grappler (both using BODY)
+    new_grappler_roll = randint(1, max(1, get_numeric_stat(char, "body", 1)))
+    current_grappler_roll = randint(1, max(1, get_numeric_stat(target, "body", 1)))
     
     splattercast.msg(f"GRAPPLE_TAKEOVER_CONTEST: {char.key} ({new_grappler_roll}) vs {target.key} ({current_grappler_roll}) - forcing release of {victim.key}")
     

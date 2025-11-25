@@ -13,21 +13,30 @@ logical grouping.
 # CHARACTER ATTRIBUTES & DEFAULTS
 # ===================================================================
 
-# G.R.I.M. system defaults
-DEFAULT_GRIT = 1
-DEFAULT_RESONANCE = 1
-DEFAULT_INTELLECT = 1
-DEFAULT_MOTORICS = 1
 
-# G.R.I.M. stat names (for attribute access)
-STAT_GRIT = "grit"  
-STAT_RESONANCE = "resonance" 
-STAT_INTELLECT = "intellect"
-STAT_MOTORICS = "motorics"
+# New stat system defaults
+DEFAULT_BODY = 1
+DEFAULT_REF = 1
+DEFAULT_DEX = 1
+DEFAULT_TECH = 1
+DEFAULT_SMRT = 1
+DEFAULT_WILL = 1
+DEFAULT_EDGE = 1
+DEFAULT_EMP = 1
+
+# New stat names (for attribute access)
+STAT_BODY = "body"
+STAT_REF = "ref"
+STAT_DEX = "dex"
+STAT_TECH = "tech"
+STAT_SMRT = "smrt"
+STAT_WILL = "will"
+STAT_EDGE = "edge"
+STAT_EMP = "emp"
 
 # Health system
 DEFAULT_HP = 10
-HP_GRIT_MULTIPLIER = 2
+HP_BODY_MULTIPLIER = 2
 
 # Equipment defaults
 DEFAULT_HANDS = {"left": None, "right": None}
@@ -655,33 +664,61 @@ COMBAT_SCRIPT_KEY = "combat_handler_script"  # Will need to verify this from act
 
 # Stat descriptors for the alphabetical tier system (A-Z, 6-point ranges)
 STAT_DESCRIPTORS = {
-    "grit": {
-        150: "Apex", 144: "Bulletproof", 138: "Concrete", 132: "Durable", 126: "Enduring",
-        120: "Fortified", 114: "Granite", 108: "Hardy", 102: "Iron-willed", 96: "Juggernaut",
-        90: "Keen", 84: "Lasting", 78: "Moderate", 72: "Normal", 66: "Ordinary",
+    "body": {
+        150: "Titanic", 144: "Colossal", 138: "Massive", 132: "Sturdy", 126: "Tough",
+        120: "Resilient", 114: "Robust", 108: "Solid", 102: "Hardy", 96: "Durable",
+        90: "Rugged", 84: "Stocky", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Soft", 48: "Tender", 42: "Fragile", 36: "Weak",
+        30: "Feeble", 24: "Vulnerable", 18: "Delicate", 12: "Brittle", 6: "Yielding", 0: "Zero"
+    },
+    "ref": {
+        150: "Lightning", 144: "Blinding", 138: "Swift", 132: "Quick", 126: "Agile",
+        120: "Sharp", 114: "Reactive", 108: "Alert", 102: "Responsive", 96: "Keen",
+        90: "Ready", 84: "Steady", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Slow", 48: "Sluggish", 42: "Delayed", 36: "Dull",
+        30: "Unready", 24: "Vacant", 18: "Unaware", 12: "Numb", 6: "Yearning", 0: "Zero"
+    },
+    "dex": {
+        150: "Acrobatic", 144: "Gymnastic", 138: "Nimble", 132: "Balanced", 126: "Flexible",
+        120: "Coordinated", 114: "Graceful", 108: "Mobile", 102: "Agile", 96: "Limber",
+        90: "Active", 84: "Steady", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Clumsy", 48: "Awkward", 42: "Stiff", 36: "Trembling",
+        30: "Unsteady", 24: "Vacant", 18: "Wobbly", 12: "Xyloid", 6: "Yielding", 0: "Zero"
+    },
+    "tech": {
+        150: "Masterful", 144: "Expert", 138: "Skilled", 132: "Adept", 126: "Competent",
+        120: "Handy", 114: "Capable", 108: "Proficient", 102: "Practiced", 96: "Trained",
+        90: "Functional", 84: "Basic", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Unskilled", 48: "Inept", 42: "Clumsy", 36: "Trembling",
+        30: "Unsteady", 24: "Vacant", 18: "Wobbly", 12: "Xyloid", 6: "Yielding", 0: "Zero"
+    },
+    "smrt": {
+        150: "Genius", 144: "Brilliant", 138: "Clever", 132: "Wise", 126: "Insightful",
+        120: "Perceptive", 114: "Aware", 108: "Intelligent", 102: "Judicious", 96: "Logical",
+        90: "Thoughtful", 84: "Reasonable", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Questioning", 48: "Rough", 42: "Slow", 36: "Troubled",
+        30: "Unclear", 24: "Vacant", 18: "Wandering", 12: "Xeric", 6: "Yearning", 0: "Zero"
+    },
+    "will": {
+        150: "Unbreakable", 144: "Resolute", 138: "Determined", 132: "Stubborn", 126: "Courageous",
+        120: "Bold", 114: "Brave", 108: "Tenacious", 102: "Persistent", 96: "Steadfast",
+        90: "Strong", 84: "Firm", 78: "Average", 72: "Normal", 66: "Ordinary",
         60: "Passable", 54: "Questionable", 48: "Rough", 42: "Soft", 36: "Tender",
         30: "Unstable", 24: "Vulnerable", 18: "Weak", 12: "Xerotic", 6: "Yielding", 0: "Zero"
     },
-    "resonance": {
-        150: "Attuned", 144: "Bonded", 138: "Charismatic", 132: "Dynamic", 126: "Empathetic",
-        120: "Fluid", 114: "Gracious", 108: "Harmonious", 102: "Intuitive", 96: "Jovial",
-        90: "Kind", 84: "Likeable", 78: "Moderate", 72: "Natural", 66: "Open",
-        60: "Polite", 54: "Quiet", 48: "Reserved", 42: "Stiff", 36: "Tense",
+    "edge": {
+        150: "Legendary", 144: "Magnetic", 138: "Charismatic", 132: "Cool", 126: "Impressive",
+        120: "Confident", 114: "Stylish", 108: "Charming", 102: "Persuasive", 96: "Influential",
+        90: "Likeable", 84: "Friendly", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Quiet", 48: "Reserved", 42: "Stiff", 36: "Tense",
         30: "Uncomfortable", 24: "Vacant", 18: "Withdrawn", 12: "Xenophobic", 6: "Yearning", 0: "Zero"
     },
-    "intellect": {
-        150: "Absolute", 144: "Brilliant", 138: "Calculating", 132: "Discerning", 126: "Enlightened",
-        120: "Focused", 114: "Gifted", 108: "Heightened", 102: "Incisive", 96: "Judicious",
-        90: "Knowledgeable", 84: "Logical", 78: "Methodical", 72: "Normal", 66: "Observant",
-        60: "Practical", 54: "Questioning", 48: "Rough", 42: "Slow", 36: "Troubled",
-        30: "Unclear", 24: "Vacant", 18: "Wandering", 12: "Xeric", 6: "Yearning", 0: "Zero"
-    },
-    "motorics": {
-        150: "Artful", 144: "Balletic", 138: "Coordinated", 132: "Dexterous", 126: "Elegant",
-        120: "Fluid", 114: "Graceful", 108: "Harmonized", 102: "Intuitive", 96: "Jaunty",
-        90: "Kinetic", 84: "Limber", 78: "Mobile", 72: "Nimble", 66: "Ordinary",
-        60: "Passable", 54: "Questionable", 48: "Rigid", 42: "Stilted", 36: "Trembling",
-        30: "Unsteady", 24: "Vacant", 18: "Wobbly", 12: "Xyloid", 6: "Yielding", 0: "Zero"
+    "emp": {
+        150: "Saintly", 144: "Compassionate", 138: "Empathetic", 132: "Caring", 126: "Sensitive",
+        120: "Kind", 114: "Considerate", 108: "Understanding", 102: "Intuitive", 96: "Jovial",
+        90: "Warm", 84: "Friendly", 78: "Average", 72: "Normal", 66: "Ordinary",
+        60: "Passable", 54: "Quiet", 48: "Reserved", 42: "Stiff", 36: "Tense",
+        30: "Uncomfortable", 24: "Vacant", 18: "Withdrawn", 12: "Xenophobic", 6: "Yearning", 0: "Zero"
     }
 }
 

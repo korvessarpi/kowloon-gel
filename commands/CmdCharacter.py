@@ -175,7 +175,7 @@ def get_stat_tier_info(stat_name, numeric_value):
 
 class CmdStats(Command):
     """
-    Access your GEL-MST psychophysical evaluation report.
+    See your character's stats and skill evaluations.
 
     Usage:
       @stats / score
@@ -184,7 +184,7 @@ class CmdStats(Command):
       @stats/numeric <target>  (Authorized personnel only)
 
     Displays your subject evaluation from the Genetic Expression Liability - 
-    Medical & Sociological Testing program. G.R.I.M. assessment parameters 
+    Medical & Sociological Testing program. Stat assessment parameters 
     are shown using standardized classification descriptors (A-Z tiers) for 
     efficient liability assessment.
     
@@ -225,136 +225,166 @@ class CmdStats(Command):
                 if matches:
                     target = matches[0]
 
-        grit = target.grit
-        resonance = target.resonance
-        intellect = target.intellect
-        motorics = target.motorics
-        
-        # Get descriptive words for stats
-        grit_desc = get_stat_descriptor("grit", grit)
-        resonance_desc = get_stat_descriptor("resonance", resonance)
-        intellect_desc = get_stat_descriptor("intellect", intellect)
-        motorics_desc = get_stat_descriptor("motorics", motorics)
-        
-        # Check if caller has admin permissions for detailed view
-        show_numeric = (
-            self.account.check_permstring(PERM_BUILDER) or 
-            self.account.check_permstring(PERM_DEVELOPER)
-        ) and "numeric" in switches
-        
-        # Get medical status using medical terminology
-        if hasattr(target, 'medical_state') and target.medical_state:
-            status_text, color_code = get_medical_status_description(target.medical_state)
-            vitals_display = status_text
-            vitals_color = color_code
+        # New stat system
+        smrt = getattr(target, 'smrt', 0)
+        will = getattr(target, 'will', 0)
+        edge = getattr(target, 'edge', 0)
+        ref = getattr(target, 'ref', 0)
+        body = getattr(target, 'body', 0)
+        dex = getattr(target, 'dex', 0)
+        emp = getattr(target, 'emp', 0)
+        tech = getattr(target, 'tech', 0)
+
+        smrt_desc = get_stat_descriptor("smrt", smrt)
+        will_desc = get_stat_descriptor("will", will)
+        edge_desc = get_stat_descriptor("edge", edge)
+        ref_desc = get_stat_descriptor("ref", ref)
+        body_desc = get_stat_descriptor("body", body)
+        dex_desc = get_stat_descriptor("dex", dex)
+        emp_desc = get_stat_descriptor("emp", emp)
+        tech_desc = get_stat_descriptor("tech", tech)
+
+        def stat_display(desc, val):
+            return f"|w[|n {val} |w]|n {desc}"
+
+        # Calculate starting empathy as EDGE + WILLPOWER
+        starting_emp = getattr(target, 'edge', 0) + getattr(target, 'will', 0)
+        # Use starting_emp for stat display
+        def stat_line(label, base, current):
+            color = "|g" if current >= base else "|r"
+            return f"|y{label:<10}|n [ {base} / {color}{current}|n ]"
+
+        stat_labels = [
+            ("Smarts", 'smrt'),
+            ("Willpower", 'will'),
+            ("Edge", 'edge'),
+            ("Reflexes", 'ref'),
+            ("Body", 'body'),
+            ("Dexterity", 'dex'),
+            ("Empathy", 'emp'),
+            ("Technique", 'tech'),
+        ]
+        # Split into two columns of 4
+        left_stats = stat_labels[:4]
+        right_stats = stat_labels[4:]
+        stat_rows = []
+        for i in range(4):
+            left_label, left_attr = left_stats[i]
+            right_label, right_attr = right_stats[i]
+            left_base = getattr(target, left_attr, 0)
+            left_current = getattr(target, left_attr, 0)
+            # Empathy: base is EDGE + WILL, final is base unless modified by chrome/drugs
+            if right_attr == 'emp':
+                right_base = starting_emp
+                # Check for chrome/drug modification
+                emp_mod = getattr(target, 'emp_mod', None)
+                if emp_mod is not None:
+                    right_current = right_base + emp_mod
+                else:
+                    right_current = right_base
+            else:
+                right_base = getattr(target, right_attr, 0)
+                right_current = getattr(target, right_attr, 0)
+            left_str = stat_line(left_label, left_base, left_current)
+            right_str = stat_line(right_label, right_base, right_current)
+            stat_rows.append(f"{left_str:<30}{right_str}")
+        stat_table = "\n".join(stat_rows) + "\n\n"
+
+        # Chrome and Augmentations section
+        chrome_name = getattr(target, "chrome_name", None)
+        chrome_buff = getattr(target, "chrome_buff", None)
+        chrome_lines = []
+        if chrome_name or chrome_buff:
+            chrome_lines.append("|bChrome and Augmentations:|n")
+            chrome_lines.append(f"|BChrome Name:|n {chrome_name or ''}")
+            chrome_lines.append(f"|BBuff/Ability:|n {chrome_buff or ''}")
         else:
-            vitals_display = "NO DATA"
-            vitals_color = ""
+            chrome_lines.append("|RNo chrome or augmentations.|n")
+        chrome_block = "\n".join(chrome_lines) + "\n\n"
 
-        # Format stat displays based on permissions
-        if show_numeric:
-            # Admin view: show descriptive word with exact numeric value
-            grit_display = f"{grit_desc} ({grit})"
-            resonance_display = f"{resonance_desc} ({resonance})"
-            intellect_display = f"{intellect_desc} ({intellect})"
-            motorics_display = f"{motorics_desc} ({motorics})"
-        else:
-            # Player view: only descriptive words
-            grit_display = grit_desc
-            resonance_display = resonance_desc
-            intellect_display = intellect_desc
-            motorics_display = motorics_desc
+        # Divider line between chrome and skills
+        divider = "|w" + ("-" * 40) + "|n\n\n"
 
-        # Convert death count to Roman numerals for file reference
-        def to_roman(num):
-            """Convert integer to Roman numeral."""
-            val = [
-                1000, 900, 500, 400,
-                100, 90, 50, 40,
-                10, 9, 5, 4,
-                1
-            ]
-            syms = [
-                "M", "CM", "D", "CD",
-                "C", "XC", "L", "XL",
-                "X", "IX", "V", "IV",
-                "I"
-            ]
-            roman_num = ''
-            i = 0
-            while num > 0:
-                for _ in range(num // val[i]):
-                    roman_num += syms[i]
-                    num -= val[i]
-                i += 1
-            return roman_num
+        # Skills table header with blue background, white underlined text
 
-        # Generate dynamic file reference and subject name
-        # Note: Character name already includes Roman numeral (e.g., "Laszlo V")
-        file_ref = f"GEL-MST/PR-{target.id}"
-        file_ref_padded = f" File Reference: {file_ref}".ljust(48)
-        
-        # Use character name directly (already has Roman numeral)
-        subject_name = target.key
-        subject_line = f" Subject: {subject_name[:38]:<38}"
+        # --- SKILL DEPENDENCIES ---
+        SKILL_DEPENDENCIES = {
+            "Chemical": {"stats": ["tech"], "split": [1.0]},
+            "Modern Medicine": {"stats": ["smrt"], "split": [1.0]},
+            "Holistic Medicine": {"stats": ["emp", "smrt"], "split": [0.5, 0.5]},
+            "Surgery": {"stats": ["tech", "edge", "will"], "split": [0.33, 0.33, 0.34]},
+            "Science": {"stats": ["smrt", "will"], "split": [0.5, 0.5]},
+            "Dodge": {"stats": ["smrt", "dex"], "split": [0.5, 0.5]},
+            "Blades": {
+                "stats": ["dex", "will"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "smrt", "type": "parry", "bonus_per": 3, "max_bonus": 0.5, "max_stat": 20}
+            },
+            "Pistols": {
+                "stats": ["smrt", "ref"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "edge", "type": "hit", "bonus_per": 3, "max_bonus": 0.25, "max_stat": 20}
+            },
+            "Rifles": {
+                "stats": ["ref", "smrt", "will"], "split": [0.33, 0.33, 0.34],
+                "tertiary": {"stat": "edge", "type": "damage", "bonus_per": 3, "max_bonus": 0.25, "max_stat": 20}
+            },
+            "Melee": {
+                "stats": ["body", "dex"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "smrt", "type": "parry", "bonus_per": 3, "max_bonus": 0.5, "max_stat": 20}
+            },
+            "Brawling": {
+                "stats": ["dex", "will"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "body", "type": "damage", "bonus_per": 0, "max_bonus": 0, "max_stat": 0}
+            },
+            "Martial Arts": {
+                "stats": ["will", "dex"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "dex", "type": "damage", "bonus_per": 0, "max_bonus": 0, "max_stat": 0}
+            },
+            "Grappling": {"stats": ["body", "dex"], "split": [0.5, 0.5]},
+            "Snooping": {"stats": ["ref", "smrt"], "split": [0.5, 0.5]},
+            "Stealing": {"stats": ["ref", "edge"], "split": [0.5, 0.5]},
+            "Hiding": {"stats": ["smrt", "edge"], "split": [0.5, 0.5]},
+            "Sneaking": {"stats": ["dex", "edge", "smrt"], "split": [0.33, 0.33, 0.34]},
+            "Disguise": {"stats": ["smrt", "edge"], "split": [0.5, 0.5]},
+            "Tailoring": {"stats": ["smrt", "tech"], "split": [0.5, 0.5]},
+            "Tinkering": {"stats": ["tech", "smrt"], "split": [0.5, 0.5]},
+            "Manufacturing": {"stats": ["tech", "will"], "split": [0.5, 0.5]},
+            "Cooking": {"stats": ["ref", "emp"], "split": [0.5, 0.5]},
+            "Forensics": {"stats": ["smrt", "edge"], "split": [0.5, 0.5]},
+            "Decking": {"stats": ["smrt", "tech"], "split": [0.5, 0.5]},
+            "Electronics": {"stats": ["smrt", "tech"], "split": [0.5, 0.5]},
+            "Mercantile": {"stats": ["edge", "smrt"], "split": [0.5, 0.5]},
+            "Streetwise": {"stats": ["edge", "emp", "smrt"], "split": [0.33, 0.33, 0.34]},
+            "Paint/Draw/Sculpt": {"stats": ["edge", "ref", "will"], "split": [0.33, 0.33, 0.34]},
+            "Instrument": {"stats": ["edge", "ref", "will"], "split": [0.33, 0.33, 0.34]},
+        }
 
-        # Dynamic formatting based on display mode
-        if show_numeric:
-            # Calculate exact padding for numeric mode to maintain 48-char width
-            grit_content = f"              Grit:       {grit_display}"
-            resonance_content = f"              Resonance:  {resonance_display}"
-            intellect_content = f"              Intellect:  {intellect_display}"
-            motorics_content = f"              Motorics:   {motorics_display}"
-            
-            # Pad each line to exactly 48 characters
-            grit_line = grit_content.ljust(48)
-            resonance_line = resonance_content.ljust(48)
-            intellect_line = intellect_content.ljust(48)
-            motorics_line = motorics_content.ljust(48)
-        else:
-            # Standard format for descriptive mode - centered stats
-            grit_line = f"              Grit:       {grit_display:<12}          "
-            resonance_line = f"              Resonance:  {resonance_display:<12}          "
-            intellect_line = f"              Intellect:  {intellect_display:<12}          "
-            motorics_line = f"              Motorics:   {motorics_display:<12}          "
+        def calculate_skill_value(char, skill_name):
+            dep = SKILL_DEPENDENCIES.get(skill_name)
+            if not dep:
+                return 0
+            value = sum(getattr(char, stat, 0) * split for stat, split in zip(dep["stats"], dep["split"]))
+            # Apply tertiary bonus if present
+            if "tertiary" in dep:
+                t = dep["tertiary"]
+                stat_val = getattr(char, t["stat"], 0)
+                if t["bonus_per"] > 0:
+                    bonus_steps = max(0, min((stat_val - 10) // t["bonus_per"], t["max_stat"] // t["bonus_per"]))
+                    bonus = (bonus_steps * t["max_bonus"])/(t["max_stat"] // t["bonus_per"])
+                    value += value * bonus
+            return int(round(value))
 
-        # Add vitals formatting to match other GRIM descriptors
-        if show_numeric:
-            # For numeric mode, vitals should follow the same pattern as other stats
-            vitals_content = f"              Vitals:     {vitals_display}"
-            vitals_line = vitals_content.ljust(48)
-        else:
-            # Standard format for descriptive mode - centered vitals
-            vitals_line = f"              Vitals:     {vitals_color}{vitals_display:<12}{COLOR_SUCCESS}          "
+        # Skill display table
+        skill_table = "|[b|w|uSkill                   Raw            Depends        Final|n\n"
+        for skill_name, dep in SKILL_DEPENDENCIES.items():
+            # RAW column: character's skill investment attribute (e.g., target.<skill_name.lower()>), fallback to 0 if not present
+            raw_investment = getattr(target, skill_name.lower().replace("/", "_"), 0)
+            depends = ", ".join(dep["stats"])
+            final_val = calculate_skill_value(target, skill_name)
+            skill_table += f"{skill_name:<18}{raw_investment:>8}{depends:>22}{final_val:>10}\n"
 
-        # Fixed format to exactly 48 visible characters per row
-        string = f"""{COLOR_SUCCESS}{BOX_TOP_LEFT}{BOX_HORIZONTAL * 48}{BOX_TOP_RIGHT}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL} PSYCHOPHYSICAL EVALUATION REPORT               {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{subject_line}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{file_ref_padded}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_TEE_RIGHT}{BOX_HORIZONTAL * 48}{BOX_TEE_LEFT}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}                                                {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{grit_line}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{resonance_line}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{intellect_line}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{motorics_line}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}                                                {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}{vitals_line}{BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}                                                {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_TEE_RIGHT}{BOX_HORIZONTAL * 48}{BOX_TEE_LEFT}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL} Notes:                                         {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}                                                {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_VERTICAL}                                                {BOX_VERTICAL}{COLOR_NORMAL}
-{COLOR_SUCCESS}{BOX_BOTTOM_LEFT}{BOX_HORIZONTAL * 48}{BOX_BOTTOM_RIGHT}{COLOR_NORMAL}"""
-
-        # Get session for terminal width detection
-        session = None
-        if hasattr(caller, 'sessions') and caller.sessions.all():
-            session = caller.sessions.all()[0]
-        
-        # Center the entire stats display using death curtain approach
-        centered_string = _center_text(string, session=session)
-        caller.msg(centered_string)
+        # Compose final output
+        output = stat_table + chrome_block + divider + skill_table
+        caller.msg(output)
 
 
 class CmdLookPlace(Command):
@@ -1067,3 +1097,54 @@ class CmdSkintone(Command):
                 return None
         else:
             return results[0]
+
+
+class CmdSetStat(Command):
+    """
+    Set a character's stat manually (Builder+ only).
+
+    Usage:
+        setstat <stat> <value> [target]
+
+    Example:
+        setstat body 10
+        setstat smrt 15 Laszlo
+    """
+    key = "setstat"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) < 2:
+            caller.msg("Usage: setstat <stat> <value> [target]")
+            return
+        stat = args[0].lower()
+        value = args[1]
+        target = caller
+        # Support both: setstat <stat> <value> <target> and setstat <target> <stat> <value>
+        if len(args) > 2:
+            # Try to find target by first or last argument
+            possible_target = args[2]
+            matches = search_object(possible_target, exact=False)
+            if not matches and len(args) > 3:
+                matches = search_object(args[0], exact=False)
+                if matches:
+                    stat = args[1].lower()
+                    value = args[2]
+            if matches:
+                target = matches[0]
+        valid_stats = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
+        if stat not in valid_stats:
+            caller.msg(f"Invalid stat. Valid stats: {', '.join(valid_stats)}")
+            return
+        try:
+            value = int(value)
+        except ValueError:
+            caller.msg("Value must be an integer.")
+            return
+        setattr(target, stat, value)
+        caller.msg(f"Set {target.key}'s {stat.upper()} to {value}.")
+        if target != caller:
+            target.msg(f"Your {stat.upper()} was set to {value} by {caller.key}.")

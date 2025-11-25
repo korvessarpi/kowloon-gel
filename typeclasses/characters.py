@@ -23,15 +23,19 @@ class Character(ObjectParent, DefaultCharacter):
     See mygame/typeclasses/objects.py for a list of
     properties and methods available on all Object child classes like this.
 
-    In this instance, we are also adding the G.R.I.M. attributes using AttributeProperty.
+    In this instance, we are also adding the new stat system attributes using AttributeProperty.
     """
     
-    # G.R.I.M. Attributes
-    # Grit, Resonance, Intellect, Motorics
-    grit = AttributeProperty(1, category='stat', autocreate=True)
-    resonance = AttributeProperty(1, category='stat', autocreate=True)
-    intellect = AttributeProperty(1, category='stat', autocreate=True)
-    motorics = AttributeProperty(1, category='stat', autocreate=True)
+    # New Stat System Attributes
+    # Smarts, Willpower, Edge, Reflexes, Brawn, Dexterity, Empathy, Technique
+    smrt = AttributeProperty(1, category='stat', autocreate=True)
+    will = AttributeProperty(1, category='stat', autocreate=True)
+    edge = AttributeProperty(1, category='stat', autocreate=True)
+    ref = AttributeProperty(1, category='stat', autocreate=True)
+    brwn = AttributeProperty(1, category='stat', autocreate=True)
+    dex = AttributeProperty(1, category='stat', autocreate=True)
+    emp = AttributeProperty(1, category='stat', autocreate=True)
+    tech = AttributeProperty(1, category='stat', autocreate=True)
     sex = AttributeProperty("ambiguous", category="biology", autocreate=True)
     
     # Shop System Attributes

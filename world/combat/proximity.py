@@ -148,7 +148,7 @@ def is_in_proximity(char1, char2):
     return char2 in proximity_set
 
 
-def proximity_opposed_roll(character, stat_name="motorics"):
+def proximity_opposed_roll(character, stat_name="dex"):
     """
     Get the highest opposing roll from characters in proximity.
     

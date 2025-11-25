@@ -665,9 +665,9 @@ class CombatHandler(DefaultScript):
                 char.msg(f"|yYou struggle against {grappler.key}'s grip!|n")
                 
                 # Setup an escape attempt
-                escaper_roll = randint(1, max(1, get_numeric_stat(char, "motorics", 1)))
-                grappler_roll = randint(1, max(1, get_numeric_stat(grappler, "motorics", 1)))
-                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} (roll {escaper_roll}) vs {grappler.key} (roll {grappler_roll}).")
+                escaper_roll = randint(1, max(1, get_numeric_stat(char, "dex", 1)))
+                grappler_roll = randint(1, max(1, get_numeric_stat(grappler, "dex", 1)))
+                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} (DEX roll {escaper_roll}) vs {grappler.key} (DEX roll {grappler_roll}).")
 
                 if escaper_roll > grappler_roll:
                     # Success - clear grapple
@@ -1246,10 +1246,10 @@ class CombatHandler(DefaultScript):
             
             # Make precision roll for organ targeting within the location
             precision_roll = randint(1, 20)
-            # Mix motorics (70%) and intellect (30%) for precision skill
-            attacker_motorics = get_numeric_stat(attacker, "motorics", 1)
-            attacker_intellect = get_numeric_stat(attacker, "intellect", 1) 
-            precision_skill = int((attacker_motorics * 0.7) + (attacker_intellect * 0.3))
+            # Mix DEX (70%) and SMRT (30%) for precision skill
+            attacker_dex = get_numeric_stat(attacker, "dex", 1)
+            attacker_smrt = get_numeric_stat(attacker, "smrt", 1)
+            precision_skill = int((attacker_dex * 0.7) + (attacker_smrt * 0.3))
             
             # Select specific target organ within the hit location
             target_organ = select_target_organ(hit_location, precision_roll, precision_skill)

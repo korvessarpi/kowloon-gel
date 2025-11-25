@@ -113,6 +113,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # Add individual character commands
         self.add(CmdCharacter.CmdStats)
+        self.add(CmdCharacter.CmdSetStat())
         self.add(CmdSpawnMob())
         self.add(CmdAdmin.CmdHeal())
         self.add(CmdAdmin.CmdPeace())

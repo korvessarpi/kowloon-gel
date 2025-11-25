@@ -17,7 +17,8 @@ Functions:
 from random import randint
 from evennia.comms.models import ChannelDB
 from .constants import (
-    DEFAULT_MOTORICS, MIN_DICE_VALUE, SPLATTERCAST_CHANNEL,
+    DEFAULT_BODY, DEFAULT_REF, DEFAULT_DEX, DEFAULT_TECH, DEFAULT_SMRT, DEFAULT_WILL, DEFAULT_EDGE, DEFAULT_EMP,
+    MIN_DICE_VALUE, SPLATTERCAST_CHANNEL,
     DEBUG_TEMPLATE, NDB_PROXIMITY, COLOR_NORMAL
 )
 
@@ -55,12 +56,17 @@ def get_character_stat(character, stat_name, default=1):
     
     Args:
         character: The character object
-        stat_name (str): Name of the stat (e.g., 'motorics', 'grit')
+        stat_name (str): Name of the stat (e.g., 'body', 'ref', 'dex', 'tech', 'smrt', 'will', 'edge', 'emp', 'brwn')
         default (int): Default value if stat is missing or invalid
         
     Returns:
         int: The stat value, guaranteed to be a positive integer
     """
+    valid_stats = [
+        "body", "ref", "dex", "tech", "smrt", "will", "edge", "emp", "brwn"
+    ]
+    if stat_name not in valid_stats:
+        return default
     stat_value = getattr(character, stat_name, default)
     
     # Ensure it's a valid number
@@ -70,7 +76,7 @@ def get_character_stat(character, stat_name, default=1):
     return int(stat_value)
 
 
-def roll_stat(character, stat_name, default=DEFAULT_MOTORICS):
+def roll_stat(character, stat_name, default=DEFAULT_BODY):
     """
     Roll a die based on a character's stat value.
     
@@ -86,7 +92,7 @@ def roll_stat(character, stat_name, default=DEFAULT_MOTORICS):
     return randint(MIN_DICE_VALUE, max(MIN_DICE_VALUE, stat_value))
 
 
-def opposed_roll(char1, char2, stat1="motorics", stat2="motorics"):
+def opposed_roll(char1, char2, stat1="body", stat2="body"):
     """
     Perform an opposed roll between two characters.
     
