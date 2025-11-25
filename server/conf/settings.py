@@ -35,7 +35,7 @@ from evennia.settings_default import *
 SERVERNAME = "Kowloon"
 # Short one-sentence blurb describing your game. Shown under the title
 # on the website and could be used in online listings of your game etc.
-GAME_SLOGAN = "The walled city!"
+GAME_SLOGAN = "The Walled city"
 # The url address to your server, like mymudgame.com. This should be the publicly
 # visible location. This is used e.g. on the web site to show how you connect to the
 # game over telnet. Default is localhost (only on your machine).
@@ -63,7 +63,7 @@ WEBCLIENT_ENABLED = True
 
 # Use secure websocket on port 8443 (CloudFlare-proxied port)
 # CloudFlare handles SSL termination and proxies to backend port 4002
-WEBSOCKET_CLIENT_URL = "wss://kowloon.life:8443"
+WEBSOCKET_CLIENT_URL = "wss://kowloon.life:4002"
 
 # Default exit typeclass
 DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"
