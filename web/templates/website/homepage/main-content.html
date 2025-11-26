@@ -25,22 +25,6 @@ body {
     hardened mercenary, a cunning hacker, or a resourceful scavenger, Kowloon offers endless 
     opportunities and challenges.
 </p>
-
-{% if telnet_enabled %}
-<p>
-    <strong>Connect via Telnet:</strong> {{ server_hostname }}, port
-    {% for port in telnet_ports %}
-    {% if not forloop.first and forloop.last %} or
-    {% elif forloop.counter != 1 %},
-    {% endif %}
-    {{ port }}
-    {% endfor %}
-</p>
-{% endif %}
-
-<hr/>
-
-<p>
     In the sprawling expanse of Kowloon, survival is a daily struggle. The colony is a melting pot 
     of outcasts, mercenaries, hackers, and scavengers, all vying for resources and power. The 
     environment is harsh, with treacherous terrain and unpredictable weather patterns that can turn 
@@ -56,3 +40,18 @@ body {
 
                                     Welcome to the Walled City.
 </p>
+{% if telnet_enabled %}
+<p>
+    <strong>Connect via Telnet:</strong> {{ server_hostname }}, port
+    {% for port in telnet_ports %}
+    {% if not forloop.first and forloop.last %} or
+    {% elif forloop.counter != 1 %},
+    {% endif %}
+    {{ port }}
+    {% endfor %}
+</p>
+{% endif %}
+
+<hr/>
+
+<p>
